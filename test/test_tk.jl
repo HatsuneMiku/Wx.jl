@@ -1,7 +1,8 @@
 #!/usr/local/bin/julia
 # -*- coding: utf-8 -*-
 
-# \julia-0.4.3\bin\julia --precompiled=yes test_tk.jl # この方が速い
+# $ julia --precompiled=yes test_tk.jl
+# julia> include("test/test_tk.jl")
 
 using Tk
 
@@ -11,7 +12,7 @@ function univPath(p)
   return replace(p, "\\", "/")
 end
 
-function main(p::AbstractString)
+function test_tk(p::AbstractString)
   widgets[:w] = w = Toplevel(p, 640, 480)
   tcl("pack", "propagate", w, false) # or pack_stop_propagate(w)
   bind(w, "<Destroy>", path -> widgets[:w] = nothing)
@@ -102,10 +103,14 @@ function main(p::AbstractString)
   # load gif sash image http://wiki.tcl.tk/20058
   img_sash = (
     ("horizontal", "xsash", "ew", """
-R0lGODlhBQB5AKIAAP///9LS0s7OzjU1NTExMf4BAgAAAAAAACH5BAUUAAUALAAAAAAFAHkAAANZKLoztDDKucJQ9ommc71UGAHBR5HmhGKgtArWWbJy6s5wO+KxyuuQV+9m2xWDvxrNd1wIgc4kc0mkGq3IpuKpzHWHV+9UXCWHwVlsVCuS9DwbB0tjbts5kgQAOw==
+R0lGODlhBQB5AKIAAP///9LS0s7OzjU1NTExMf4BAgAAAAAAACH5BAUUAAUALAAAAAAFAHkAAANZ
+KLoztDDKucJQ9ommc71UGAHBR5HmhGKgtArWWbJy6s5wO+KxyuuQV+9m2xWDvxrNd1wIgc4kc0mk
+Gq3IpuKpzHWHV+9UXCWHwVlsVCuS9DwbB0tjbts5kgQAOw==
 """),
     ("vertical", "ysash", "ns", """
-R0lGODlheQAFAKIAAP///9LS0s7OzjU1NTExMf4BAgAAAAAAACH5BAUUAAUALAAAAAB5AAUAAANOKLrc/jDKSau9agSnsf9gKHXNkG3MoKJKAAgu/Mb0bMt4nd96z/+7oC61KikILAFhSSAJOtBN9CmtUq/TrFWL3Xq7YKeSKSaIzui0+pEAADs=
+R0lGODlheQAFAKIAAP///9LS0s7OzjU1NTExMf4BAgAAAAAAACH5BAUUAAUALAAAAAB5AAUAAANO
+KLrc/jDKSau9agSnsf9gKHXNkG3MoKJKAAgu/Mb0bMt4nd96z/+7oC61KikILAFhSSAJOtBN9Cmt
+Uq/TrFWL3Xq7YKeSKSaIzui0+pEAADs=
 """),
   )
   for (d, hv, news, img) in img_sash
@@ -126,10 +131,19 @@ R0lGODlheQAFAKIAAP///9LS0s7OzjU1NTExMf4BAgAAAAAAACH5BAUUAAUALAAAAAB5AAUAAANOKLrc
 
   set_value(nb, 2)
 
-  Messagebox(title=p, message="Hello, 世界!") # to keep
+  # Messagebox(title=p, message="Hello, 世界!") # to keep
 
   exists(w) && cbk_dsp(w) # skip after destroy(w)
   # widgets[:w] != nothing && cbk_dsp(w) # skip after destroy(w)
+
+  return w
 end
 
-main("title日本語漢字表示申能")
+if ! isinteractive()
+  w = test_tk("TEST日本語漢字表示申能 A")
+  Messagebox(title=get_value(w), message="Hello, 世界! A") # to keep
+end
+if current_module() == Main
+  w = test_tk("TEST日本語漢字表示申能 B")
+  Messagebox(title=get_value(w), message="Hello, 世界! B") # to keep
+end
