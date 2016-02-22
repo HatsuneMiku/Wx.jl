@@ -73,9 +73,10 @@ function main(p::AbstractString)
   grid_rowconfigure(f1, 1, weight=3)
   grid_rowconfigure(f1, 3, weight=1)
 
+  sash_dir = "vertical" # "horizontal"
   f2 = Frame(nb, padding=[16,16,8,8], relief="groove")
   page_add(f2, "椨 2")
-  p21 = Panedwindow(f2, "horizontal")
+  p21 = Panedwindow(f2, sash_dir)
   # pack(p21, expand=true, fill="both")
   grid(p21, 1, 1, sticky="news")
   grid_columnconfigure(f2, 1, weight=1)
@@ -98,16 +99,27 @@ function main(p::AbstractString)
   tcl(p21, "sashpos", 1, 200)
   tcl(p21, "sashpos", 2, 300)
 
-  # http://wiki.tcl.tk/20058
-  bmp_sash_h = """
-R0lGODlhBQB5AKECADMzM9TQyP///////yH+EUNyZWF0ZWQgd2l0aCBHSU1QACH5BAEKAAMALAAA
-AAAFAHkAAAJOjA95y+0LUAxpUkufboLh1UFPiIyeKTqk8R1rpp5xysk1zbytoaPl/LsFczYiDlRE
-Hl1J5pLXhD4DPSDLd7XChFnudgO2KC5izA6sqTQKADs=
-"""
-  tcl_eval("image create photo img:sash -data {$bmp_sash_h}") # => "img:sash"
-  tcl_eval("""ttk::style element create Sash.xsash image [list img:sash] \\
-    -border {1 1} -sticky ew -padding {1 1}""") # => "Sash.xsash"
-  tcl_eval("ttk::style layout TPanedwindow { Sash.xsash }") # => ""
+  # load gif sash image http://wiki.tcl.tk/20058
+  img_sash = (
+    ("horizontal", "xsash", "ew", """
+R0lGODlhBQB5AKIAAP///9LS0s7OzjU1NTExMf4BAgAAAAAAACH5BAUUAAUALAAAAAAFAHkAAANZKLoztDDKucJQ9ommc71UGAHBR5HmhGKgtArWWbJy6s5wO+KxyuuQV+9m2xWDvxrNd1wIgc4kc0mkGq3IpuKpzHWHV+9UXCWHwVlsVCuS9DwbB0tjbts5kgQAOw==
+"""),
+    ("vertical", "ysash", "ns", """
+R0lGODlheQAFAKIAAP///9LS0s7OzjU1NTExMf4BAgAAAAAAACH5BAUUAAUALAAAAAB5AAUAAANOKLrc/jDKSau9agSnsf9gKHXNkG3MoKJKAAgu/Mb0bMt4nd96z/+7oC61KikILAFhSSAJOtBN9CmtUq/TrFWL3Xq7YKeSKSaIzui0+pEAADs=
+"""),
+  )
+  for (d, hv, news, img) in img_sash
+    d != sash_dir && continue
+    try
+      tcl_eval("image create photo img:sash -data {$img}") # => "img:sash"
+      tcl_eval("""ttk::style element create Sash.$hv image [list img:sash] \\
+        -border {1 1} -sticky $news -padding {1 1}""") # => "Sash.?sash"
+    catch e
+      if ! isa(e, Tk.TclError) throw(e) end
+    finaly
+      tcl_eval("ttk::style layout TPanedwindow { Sash.$hv }") # => ""
+    end
+  end
 
   f3 = Frame(nb, padding=[16,16,8,8], relief="groove")
   page_add(f3, "椨 3")
