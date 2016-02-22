@@ -1,5 +1,12 @@
+# -*- coding: utf-8 -*-
+# Wx.jl
+
 module Wx
 
-# package code goes here
+export WxApp
 
-end # module
+function WxApp()
+  true
+end
+
+end
